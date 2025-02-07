@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>لعبة حجر ورقة مقص</title>
+<style>
+body {
+    font-family: sans-serif;
+    background-color: #eee;																																																																										
+    text-align: center;
+}
+.container {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 20px;
+}
+.choice {
+    width: 100px;
+    height: 100px;
+    border: 2px solid #ccc;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 40px;
+}
+.selected {
+    border-color: green;
+}
+#result {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+.lose-effect { /* تأثير الخسارة */
+    animation: loseAnimation 0.5s ease-in-out;
+}
+@keyframes loseAnimation {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+#score { /* تنسيق عرض النتيجة */
+    font-size: 20px;
+    margin-bottom: 10px;
+    position: absolute; /* هام: تحديد مكان العنصر */
+    top: 10px; /* المسافة من أعلى الصفحة */
+    left: 10px; /* المسافة من يسار الصفحة */
+}
+</style>
+</head>
+<body>
+
+<label for="username">أدخل اسمك:</label>
+<input type="text" id="username">
+<button onclick="startGame()">ابدأ اللعبة</button>
+
+<div id="game-area" style="display: none;">
+    <div id="score"></div> <div id="result"></div>
+    <h1 id="choose-text"></h1>
+    <div class="container">
+        <div class="choice" id="user-rock" onclick="play('rock')">✊</div>
+        <div class="choice" id="user-paper" onclick="play('paper')">✋</div>
+        <div class="choice" id="user-scissors" onclick="play('scissors')">✌</div>
+    </div>
+
+    <h2>VEDO:</h2>
+    <div class="container">
+        <div class="choice" id="vedo-rock" onclick="playVedo('rock')">✊</div>
+        <div class="choice" id="vedo-paper" onclick="playVedo('paper')">✋</div>
+        <div class="choice" id="vedo-scissors" onclick="playVedo('scissors')">✌</div>
+    </div>
+</div>
+
+<script>
+let username = "";
+let userScore = 0;
+let vedoScore = 0;
+let gameActive = true;
+
+function startGame() {
+    username = document.getElementById('username').value;
+
+    if (username.trim() === "") {
+        alert("من فضلك أدخل اسمك!");
+        return;
+    }
+
+    document.getElementById('choose-text').textContent = `اختر يا ${username}:`;
+    document.getElementById('game-area').style.display = 'block';
+    document.getElementById('username').style.display = 'none';
+    document.querySelector('label[for="username"]').style.display = 'none';
+    document.querySelector('button').style.display = 'none';
+
+    updateScore();
+    gameActive = true;
+}
+
+function play(userChoice) {
+    if (!gameActive) {
+        return;
+    }
+
+    const choices = ['rock', 'paper', 'scissors'];
+    const vedoChoice = choices[Math.floor(Math.random() * 3)];
+
+    highlightChoice('user', userChoice);
+    highlightChoice('vedo', vedoChoice);
+
+    let winner = "";
+    if (userChoice === vedoChoice) {
+        winner = `تعادلت يا ${username}!`;
+    } else if (
+        (userChoice === 'rock' && vedoChoice === 'scissors') ||
+        (userChoice === 'paper' && vedoChoice === 'rock') ||
+        (userChoice === 'scissors' && vedoChoice === 'paper')
+    ) {
+        winner = `أنت فزت يا ${username}!`;
+        userScore++;
+    } else {
+        winner = `فاز VEDO!`; // الرسالة الصحيحة هنا
+        vedoScore++;
+        document.getElementById(`user-${userChoice}`).classList.add('lose-effect');
+        setTimeout(() => {
+            document.getElementById(`user-${userChoice}`).classList.remove('lose-effect');
+        }, 500);
+    }
+
+    document.getElementById('result').textContent = winner;
+    updateScore();
+
+    gameActive = false;
+    document.getElementById('choose-text').style.display = 'none';
+}
+
+function playVedo(vedoChoice) {
+    // هذه الدالة فارغة، يمكنك إضافة أي منطق للعب VEDO هنا إذا كنت ترغب في ذلك
+}
+
+
+function highlightChoice(player, choice) {
+    const elements = document.querySelectorAll(`#${player}-rock, #${player}-paper, #${player}-scissors`);
+    elements.forEach(el => el.classList.remove('selected'));
+    document.getElementById(`${player}-${choice}`).classList.add('selected');
+}
+
+function updateScore() {
+    document.getElementById('score').textContent = `النتيجة: ${username} - ${userScore} | VEDO - ${vedoScore}`;
+}
+
+const choices = document.querySelectorAll('.choice');
+choices.forEach(choice => {
+    choice.addEventListener('click', () => {
+        if (!gameActive) {
+            document.getElementById('choose-text').style.display = 'block';
+            gameActive = true;
+        }
+    });
+});
+</script>
+
+</body>
+</html>
